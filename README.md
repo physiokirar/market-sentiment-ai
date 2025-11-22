@@ -44,10 +44,9 @@ A real-time financial dashboard that analyzes stock news sentiment using **FinBE
 ## ⚙️ How to Run Locally
 
 1. **Clone the repository**
-   ```bash
-   git clone [https://github.com/physiokirar/ashish-market-sentiment-ai.git](https://github.com/physiokirar/ashish-market-sentiment-ai.git)
+   ```
+   git clone https://github.com/physiokirar/market-sentiment-ai.git
    cd market-sentiment-ai
-
 
    ---
 
