@@ -16,26 +16,35 @@ def get_sentiment(text):
         return "Error", 0.0
 
     headers = {"Authorization": f"Bearer {token}"}
+    
+    # Truncate text to prevent errors (BERT limit)
     if text and len(text) > 1500:
         text = text[:1500]
+        
     payload = {"inputs": text}
 
     for attempt in range(3):
         try:
             response = requests.post(API_URL, headers=headers, json=payload)
             data = response.json()
+            
             if isinstance(data, list) and len(data) > 0:
                 if isinstance(data[0], list): scores = data[0]
                 else: scores = data
+                
                 top = sorted(scores, key=lambda x: x['score'], reverse=True)[0]
                 return top['label'], top['score']
+            
             elif 'error' in data and 'loading' in data['error']:
                 time.sleep(3)
                 continue
+            
             elif 'error' in data:
                 return "Neutral", 0.0
+                
         except:
             pass
+            
     return "Neutral", 0.0
 
 # --- 3. HELPER FUNCTIONS ---
@@ -44,7 +53,7 @@ def search_symbols(query):
     Fetches top 10 matches from Yahoo Finance to let user choose.
     """
     url = "https://query2.finance.yahoo.com/v1/finance/search"
-    params = {"q": query, "quotesCount": 10, "newsCount": 0} # Get top 10 matches
+    params = {"q": query, "quotesCount": 10, "newsCount": 0} 
     headers = {'User-Agent': 'Mozilla/5.0'}
     try:
         r = requests.get(url, params=params, headers=headers)
@@ -52,7 +61,6 @@ def search_symbols(query):
         if 'quotes' in data and len(data['quotes']) > 0:
             results = []
             for q in data['quotes']:
-                # We only want Equities or Indices, not Futures/Options usually
                 if 'symbol' in q:
                     results.append({
                         'symbol': q['symbol'],
@@ -68,6 +76,7 @@ def sentiment_card(title, link, publisher, date_str, label, score):
     color = "#777"
     if label == "positive": color = "#28a745"
     elif label == "negative": color = "#dc3545"
+    
     st.markdown(f"""
     <div style="padding: 12px; border-left: 5px solid {color}; background-color: #f0f2f6; margin-bottom: 10px; border-radius: 4px;">
         <div style="display: flex; justify-content: space-between;">
@@ -99,39 +108,38 @@ with tab1:
 
         if search_results:
             # 2. Selection Phase
-            # Create readable labels for the dropdown
             options = {f"{r['name']} ({r['symbol']}) - {r['exchange']}": r['symbol'] for r in search_results}
-            
             selected_label = st.selectbox("Select the correct company:", list(options.keys()))
             
             if selected_label:
-                ticker = options[selected_label] # Get the actual symbol (e.g., RELIANCE.NS)
+                ticker = options[selected_label]
                 
                 # 3. Analysis Phase
                 stock = yf.Ticker(ticker)
                 try:
                     hist = stock.history(period="1mo")
                     if not hist.empty:
-                        # Metrics (Safe Mode)
+                        # --- METRICS SECTION (Safe Mode) ---
                         current = hist['Close'].iloc[-1]
                         
-                        # Check if we have at least 2 days of data to calculate change
+                        # Check for enough data to calculate change
                         if len(hist) >= 2:
                             prev = hist['Close'].iloc[-2]
                             delta = current - prev
                         else:
-                            delta = 0 # No previous data available
-                            
+                            delta = 0
+                            st.warning("⚠️ Note: Limited trading data found for this ticker.")
+
                         col1, col2 = st.columns([1, 3])
                         with col1:
                             st.metric("Price", f"{current:.2f}", f"{delta:.2f}")
                         with col2:
-                            # Sanitize chart data
+                            # Sanitize chart data (Timezone Fix)
                             chart_data = hist[['Close']].copy()
                             chart_data.index = chart_data.index.date
                             st.line_chart(chart_data, height=250)
                         
-                        # AI Analysis
+                        # --- AI NEWS SECTION ---
                         st.subheader(f"🧠 AI News Analysis for {ticker}")
                         progress_bar = st.progress(0, text="Scanning news...")
                         
@@ -140,6 +148,7 @@ with tab1:
                             for i, item in enumerate(news_list[:5]):
                                 progress_bar.progress((i + 1) * 20, text=f"Reading Headline {i+1}...")
                                 
+                                # Bulletproof Extraction
                                 if isinstance(item, dict) and 'content' in item and item['content']:
                                     payload = item['content']
                                 else:
@@ -163,14 +172,17 @@ with tab1:
                                         except:
                                             pass
 
+                                # Publisher Logic
                                 provider = payload.get('provider', {})
                                 if isinstance(provider, dict):
                                     publisher = provider.get('displayName', 'Unknown')
                                 else:
                                     publisher = "Unknown"
                                     
+                                # Link Logic
                                 link = payload.get('clickThroughUrl', {}).get('url', payload.get('link', '#'))
 
+                                # AI Call
                                 label, score = get_sentiment(title)
                                 sentiment_card(title, link, publisher, date_str, label, score)
                             
