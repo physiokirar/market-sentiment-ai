@@ -7,7 +7,7 @@ from datetime import datetime
 # --- 1. CONFIGURATION ---
 st.set_page_config(page_title="Market Sentiment AI", page_icon="💰", layout="wide")
 
-# --- SIDEBAR (The "About" Section) ---
+# --- SIDEBAR ---
 with st.sidebar:
     st.header("ℹ️ About the App")
     st.markdown("""
@@ -175,7 +175,13 @@ with tab1:
                                 else:
                                     publisher = "Unknown"
                                     
-                                link = payload.get('clickThroughUrl', {}).get('url', payload.get('link', '#'))
+                                # --- FIX: Handle Null Links Safely ---
+                                click_url = payload.get('clickThroughUrl')
+                                if click_url and isinstance(click_url, dict):
+                                    link = click_url.get('url', '#')
+                                else:
+                                    link = payload.get('link', '#')
+
                                 label, score = get_sentiment(title)
                                 sentiment_card(title, link, publisher, date_str, label, score)
                             
