@@ -7,6 +7,19 @@ from datetime import datetime
 # --- 1. CONFIGURATION ---
 st.set_page_config(page_title="Market Sentiment AI", page_icon="💰", layout="wide")
 
+# --- SIDEBAR (The "About" Section) ---
+with st.sidebar:
+    st.header("ℹ️ About the App")
+    st.markdown("""
+    **Data Source:** Market data is sourced dynamically from [Yahoo Finance](https://finance.yahoo.com/).
+    
+    **AI Engine:** Sentiment analysis powered by [FinBERT](https://huggingface.co/ProsusAI/finbert) via Hugging Face.
+    
+    **Disclaimer:** This tool is for educational purposes only. Do not use this as the sole basis for investment decisions.
+    """)
+    st.divider()
+    st.caption("Built by Ashish Kumar Kirar")
+
 # --- 2. THE AI BRAIN ---
 def get_sentiment(text):
     API_URL = "https://router.huggingface.co/hf-inference/models/ProsusAI/finbert"
@@ -17,7 +30,6 @@ def get_sentiment(text):
 
     headers = {"Authorization": f"Bearer {token}"}
     
-    # Truncate text to prevent errors (BERT limit)
     if text and len(text) > 1500:
         text = text[:1500]
         
@@ -49,9 +61,6 @@ def get_sentiment(text):
 
 # --- 3. HELPER FUNCTIONS ---
 def search_symbols(query):
-    """
-    Fetches top 10 matches from Yahoo Finance to let user choose.
-    """
     url = "https://query2.finance.yahoo.com/v1/finance/search"
     params = {"q": query, "quotesCount": 10, "newsCount": 0} 
     headers = {'User-Agent': 'Mozilla/5.0'}
@@ -102,27 +111,20 @@ with tab1:
     query = st.text_input("Enter Company Name (e.g., Reliance, Tata, Tesla):")
 
     if query:
-        # 1. Search Phase
         with st.spinner(f"🔍 Searching for '{query}'..."):
             search_results = search_symbols(query)
 
         if search_results:
-            # 2. Selection Phase
             options = {f"{r['name']} ({r['symbol']}) - {r['exchange']}": r['symbol'] for r in search_results}
             selected_label = st.selectbox("Select the correct company:", list(options.keys()))
             
             if selected_label:
                 ticker = options[selected_label]
-                
-                # 3. Analysis Phase
                 stock = yf.Ticker(ticker)
                 try:
                     hist = stock.history(period="1mo")
                     if not hist.empty:
-                        # --- METRICS SECTION (Safe Mode) ---
                         current = hist['Close'].iloc[-1]
-                        
-                        # Check for enough data to calculate change
                         if len(hist) >= 2:
                             prev = hist['Close'].iloc[-2]
                             delta = current - prev
@@ -134,12 +136,10 @@ with tab1:
                         with col1:
                             st.metric("Price", f"{current:.2f}", f"{delta:.2f}")
                         with col2:
-                            # Sanitize chart data (Timezone Fix)
                             chart_data = hist[['Close']].copy()
                             chart_data.index = chart_data.index.date
                             st.line_chart(chart_data, height=250)
                         
-                        # --- AI NEWS SECTION ---
                         st.subheader(f"🧠 AI News Analysis for {ticker}")
                         progress_bar = st.progress(0, text="Scanning news...")
                         
@@ -148,17 +148,14 @@ with tab1:
                             for i, item in enumerate(news_list[:5]):
                                 progress_bar.progress((i + 1) * 20, text=f"Reading Headline {i+1}...")
                                 
-                                # Bulletproof Extraction
                                 if isinstance(item, dict) and 'content' in item and item['content']:
                                     payload = item['content']
                                 else:
                                     payload = item
                                 
                                 if not payload: continue
-                                
                                 title = payload.get('title', 'No Title')
                                 
-                                # Date Logic
                                 pub_time = payload.get('pubDate') or payload.get('providerPublishTime')
                                 date_str = "Recent"
                                 if pub_time:
@@ -172,17 +169,13 @@ with tab1:
                                         except:
                                             pass
 
-                                # Publisher Logic
                                 provider = payload.get('provider', {})
                                 if isinstance(provider, dict):
                                     publisher = provider.get('displayName', 'Unknown')
                                 else:
                                     publisher = "Unknown"
                                     
-                                # Link Logic
                                 link = payload.get('clickThroughUrl', {}).get('url', payload.get('link', '#'))
-
-                                # AI Call
                                 label, score = get_sentiment(title)
                                 sentiment_card(title, link, publisher, date_str, label, score)
                             
