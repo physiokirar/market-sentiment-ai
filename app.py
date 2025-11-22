@@ -12,10 +12,8 @@ with st.sidebar:
     st.header("ℹ️ About the App")
     st.markdown("""
     **Data Source:** Market data is sourced dynamically from [Yahoo Finance](https://finance.yahoo.com/).
-    
-    **AI Engine:** Sentiment analysis powered by [FinBERT](https://huggingface.co/ProsusAI/finbert) via Hugging Face.
-    
-    **Disclaimer:** This tool is for educational purposes only. Do not use this as the sole basis for investment decisions.
+    **AI Engine:** Sentiment analysis powered by [FinBERT](https://huggingface.co/ProsusAI/finbert).
+    **Version:** 6.0 (Stable)
     """)
     st.divider()
     st.caption("Built by Ashish Kumar Kirar")
@@ -43,20 +41,15 @@ def get_sentiment(text):
             if isinstance(data, list) and len(data) > 0:
                 if isinstance(data[0], list): scores = data[0]
                 else: scores = data
-                
                 top = sorted(scores, key=lambda x: x['score'], reverse=True)[0]
                 return top['label'], top['score']
-            
             elif 'error' in data and 'loading' in data['error']:
                 time.sleep(3)
                 continue
-            
             elif 'error' in data:
                 return "Neutral", 0.0
-                
         except:
             pass
-            
     return "Neutral", 0.0
 
 # --- 3. HELPER FUNCTIONS ---
@@ -102,14 +95,12 @@ def sentiment_card(title, link, publisher, date_str, label, score):
     """, unsafe_allow_html=True)
 
 # --- 4. THE UI ---
-st.title("💰 Market Sentiment AI")
+st.title("💰 Market Sentiment AI (v6.0)")
 
 tab1, tab2 = st.tabs(["📈 Stock Dashboard", "🧪 Custom Analysis"])
 
-# --- TAB 1: DASHBOARD ---
 with tab1:
-    query = st.text_input("Enter Company Name (e.g., Reliance, Tata, Tesla):")
-
+    query = st.text_input("Enter Company Name:")
     if query:
         with st.spinner(f"🔍 Searching for '{query}'..."):
             search_results = search_symbols(query)
@@ -130,7 +121,7 @@ with tab1:
                             delta = current - prev
                         else:
                             delta = 0
-                            st.warning("⚠️ Note: Limited trading data found for this ticker.")
+                            st.warning("⚠️ Limited trading data found.")
 
                         col1, col2 = st.columns([1, 3])
                         with col1:
@@ -148,54 +139,62 @@ with tab1:
                             for i, item in enumerate(news_list[:5]):
                                 progress_bar.progress((i + 1) * 20, text=f"Reading Headline {i+1}...")
                                 
-                                if isinstance(item, dict) and 'content' in item and item['content']:
-                                    payload = item['content']
-                                else:
-                                    payload = item
-                                
-                                if not payload: continue
-                                title = payload.get('title', 'No Title')
-                                
-                                pub_time = payload.get('pubDate') or payload.get('providerPublishTime')
-                                date_str = "Recent"
-                                if pub_time:
-                                    try:
-                                        dt = datetime.fromisoformat(str(pub_time).replace("Z", "+00:00"))
-                                        date_str = dt.strftime("%b %d, %Y")
-                                    except:
+                                # --- THE TITANIUM SHIELD ---
+                                try:
+                                    # 1. Normalize Payload
+                                    if isinstance(item, dict) and 'content' in item and item['content']:
+                                        payload = item['content']
+                                    else:
+                                        payload = item
+                                    
+                                    if not payload: continue
+
+                                    # 2. Safe Extraction
+                                    title = payload.get('title', 'No Title')
+                                    
+                                    # Date
+                                    pub_time = payload.get('pubDate') or payload.get('providerPublishTime')
+                                    date_str = "Recent"
+                                    if pub_time:
                                         try:
-                                            dt = datetime.fromtimestamp(int(pub_time))
+                                            dt = datetime.fromisoformat(str(pub_time).replace("Z", "+00:00"))
                                             date_str = dt.strftime("%b %d, %Y")
                                         except:
                                             pass
 
-                                provider = payload.get('provider', {})
-                                if isinstance(provider, dict):
-                                    publisher = provider.get('displayName', 'Unknown')
-                                else:
-                                    publisher = "Unknown"
-                                    
-                                # --- FIX: Handle Null Links Safely ---
-                                click_url = payload.get('clickThroughUrl')
-                                if click_url and isinstance(click_url, dict):
-                                    link = click_url.get('url', '#')
-                                else:
-                                    link = payload.get('link', '#')
+                                    # Provider (Source) - Extra Safe
+                                    provider_data = payload.get('provider')
+                                    if provider_data and isinstance(provider_data, dict):
+                                        publisher = provider_data.get('displayName', 'Unknown')
+                                    else:
+                                        publisher = "Unknown"
+                                        
+                                    # Link - Extra Safe
+                                    click_data = payload.get('clickThroughUrl')
+                                    if click_data and isinstance(click_data, dict):
+                                        link = click_data.get('url', '#')
+                                    else:
+                                        link = payload.get('link', '#')
 
-                                label, score = get_sentiment(title)
-                                sentiment_card(title, link, publisher, date_str, label, score)
+                                    # 3. AI Call & Render
+                                    label, score = get_sentiment(title)
+                                    sentiment_card(title, link, publisher, date_str, label, score)
+                                    
+                                except Exception as e:
+                                    # If ANYTHING breaks in this item, skip it and continue loop
+                                    continue 
+                                # ---------------------------
                             
                             progress_bar.empty()
                         else:
                             st.info("No news found.")
                     else:
-                        st.error(f"No trading data found for {ticker}.")
+                        st.error("No trading data.")
                 except Exception as e:
                     st.error(f"Error: {e}")
         else:
-            st.warning("No companies found. Try a different name.")
+            st.warning("No companies found.")
 
-# --- TAB 2: CUSTOM ANALYSIS ---
 with tab2:
     st.subheader("🧪 Test Your Own Text")
     user_text = st.text_area("Paste text here:", height=150)
