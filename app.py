@@ -112,10 +112,16 @@ with tab1:
                 try:
                     hist = stock.history(period="1mo")
                     if not hist.empty:
-                        # Metrics
+                        # Metrics (Safe Mode)
                         current = hist['Close'].iloc[-1]
-                        prev = hist['Close'].iloc[-2]
-                        delta = current - prev
+                        
+                        # Check if we have at least 2 days of data to calculate change
+                        if len(hist) >= 2:
+                            prev = hist['Close'].iloc[-2]
+                            delta = current - prev
+                        else:
+                            delta = 0 # No previous data available
+                            
                         col1, col2 = st.columns([1, 3])
                         with col1:
                             st.metric("Price", f"{current:.2f}", f"{delta:.2f}")
