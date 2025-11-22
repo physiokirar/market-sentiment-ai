@@ -51,4 +51,4 @@ A real-time financial dashboard that analyzes stock news sentiment using **FinBE
 
    ---
 
-**Created by [Ashish Kumar Kirar](www.linkedin.com/in/ashishkumarkirardataenthu)**
+**Created by [Ashish Kumar Kirar](https://www.linkedin.com/in/ashishkumarkirardataenthu)**
