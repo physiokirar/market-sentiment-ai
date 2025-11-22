@@ -6,12 +6,12 @@
 
 A real-time financial dashboard that analyzes stock news sentiment using **FinBERT** (a Financial Large Language Model). Built to help traders make data-driven decisions by cutting through the noise of market news.
 
-## 🚀 Live Demo
+## Live Demo
 **[Click here to use the App](https://market-sentiment-ai.streamlit.app)**
 
 ---
 
-## 🧠 Key Features
+## Key Features
 
 * **Real-Time Market Data:** Fetches live stock prices and historical trends for companies listed on **NSE** (India), **BSE**, and **NASDAQ** (USA).
 * **AI-Powered Analysis:** Uses `ProsusAI/finbert` to analyze news headlines and classify sentiment as **Positive**, **Negative**, or **Neutral**.
@@ -21,7 +21,7 @@ A real-time financial dashboard that analyzes stock news sentiment using **FinBE
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 * **Frontend:** Streamlit
 * **Backend:** Python 3.10+
@@ -31,13 +31,13 @@ A real-time financial dashboard that analyzes stock news sentiment using **FinBE
 
 ---
 
-## 📸 Screenshots
+##  Screenshots
 
 ### 1. Stock Dashboard (Real-time Charts & News)
-![Dashboard Screenshot](https://via.placeholder.com/800x400?text=Upload+Your+Dashboard+Screenshot+Here)
+![Dashboard Screenshot](dashboard.png)
 
 ### 2. AI Analysis (Sentiment Scoring)
-![AI Analysis Screenshot](https://via.placeholder.com/800x400?text=Upload+Your+AI+Screenshot+Here)
+![AI Analysis Screenshot](analysis.png)
 
 ---
 
