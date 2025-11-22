@@ -112,8 +112,11 @@ with tab1:
                     with col1:
                         st.metric("Price", f"₹{current:.2f}", f"{delta:.2f}")
                     with col2:
-                        st.line_chart(hist['Close'], height=250)
-                    
+                        # FIX: Drop timezone information to prevent cloud rendering errors
+                        chart_data = hist[['Close']].copy()
+                        chart_data.index = chart_data.index.date 
+                        st.line_chart(chart_data, height=250)
+                                        
                     st.subheader("🧠 AI News Analysis")
                     progress_bar = st.progress(0, text="Scanning news...")
                     
