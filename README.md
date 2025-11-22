@@ -34,10 +34,10 @@ A real-time financial dashboard that analyzes stock news sentiment using **FinBE
 ##  Screenshots
 
 ### 1. Stock Dashboard (Real-time Charts & News)
-![Dashboard Screenshot](dashboard.png)
+![Dashboard Screenshot](Dashboard.png)
 
 ### 2. AI Analysis (Sentiment Scoring)
-![AI Analysis Screenshot](analysis.png)
+![AI Analysis Screenshot](Analysis.png)
 
 ---
 
