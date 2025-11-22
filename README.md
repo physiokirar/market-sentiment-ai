@@ -1,13 +1,13 @@
 # 💰 Market Sentiment AI
 
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://market-sentiment-ai.streamlit.app)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://ashish-market-sentiment-ai.streamlit.app/)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue)](https://www.python.org/)
 [![Hugging Face](https://img.shields.io/badge/AI%20Model-FinBERT-yellow)](https://huggingface.co/ProsusAI/finbert)
 
 A real-time financial dashboard that analyzes stock news sentiment using **FinBERT** (a Financial Large Language Model). Built to help traders make data-driven decisions by cutting through the noise of market news.
 
 ## Live Demo
-**[Click here to use the App](https://market-sentiment-ai.streamlit.app)**
+**[Click here to use the App](https://ashish-market-sentiment-ai.streamlit.app/)**
 
 ---
 
@@ -45,5 +45,10 @@ A real-time financial dashboard that analyzes stock news sentiment using **FinBE
 
 1. **Clone the repository**
    ```bash
-   git clone [https://github.com/physiokirar/market-sentiment-ai.git](https://github.com/physiokirar/market-sentiment-ai.git)
+   git clone [https://github.com/physiokirar/ashish-market-sentiment-ai.git](https://github.com/physiokirar/ashish-market-sentiment-ai.git)
    cd market-sentiment-ai
+
+
+   ---
+
+**Created by [Ashish Kumar Kirar](www.linkedin.com/in/ashishkumarkirardataenthu)**
