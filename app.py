@@ -109,7 +109,7 @@ tab1, tab2 = st.tabs(["📈 Stock Dashboard", "🧪 Custom Analysis"])
 
 # --- TAB 1: DASHBOARD ---
 with tab1:
-    query = st.text_input("Enter Company Name (e.g., Apple, Samsung, Genpact, etc.):")
+    query = st.text_input("Enter Company Name & Hit Enter (e.g., Apple, Samsung, Genpact, etc.):")
 
     if query:
         with st.spinner(f"🔍 Searching for '{query}'..."):
@@ -117,7 +117,7 @@ with tab1:
 
         if search_results:
             options = {f"{r['name']} ({r['symbol']}) - {r['exchange']}": r['symbol'] for r in search_results}
-            selected_label = st.selectbox("Select the correct company:", list(options.keys()))
+            selected_label = st.selectbox("Select the Correct Company:", list(options.keys()))
             
             if selected_label:
                 ticker = options[selected_label]
