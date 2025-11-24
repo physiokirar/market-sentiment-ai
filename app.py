@@ -7,7 +7,7 @@ from datetime import datetime
 # --- 1. CONFIGURATION ---
 st.set_page_config(page_title="Market Sentiment AI", page_icon="💰", layout="wide")
 
-# --- SIDEBAR (Restored & Polished) ---
+# --- SIDEBAR ---
 with st.sidebar:
     st.header("ℹ️ About the App")
     st.markdown("""
@@ -83,20 +83,26 @@ def search_symbols(query):
     return []
 
 def sentiment_card(title, link, publisher, date_str, label, score):
-    color = "#777"
-    if label == "positive": color = "#28a745"
-    elif label == "negative": color = "#dc3545"
+    # Color Logic
+    color = "#777" # Default Grey
+    if label == "positive": color = "#28a745" # Green
+    elif label == "negative": color = "#dc3545" # Red
+    
+    # Formatting the Label
+    label_text = label.title() 
     
     st.markdown(f"""
-    <div style="padding: 12px; border-left: 5px solid {color}; background-color: #f0f2f6; margin-bottom: 10px; border-radius: 4px;">
-        <div style="display: flex; justify-content: space-between;">
-            <span style="color:{color}; font-weight:bold; font-size: 0.9em;">Sentiment: {label.title()} (with {score: .0%} confidence)</span>
-            <span style="color: #666; font-size: 0.8em;">{date_str}</span>
+    <div style="padding: 15px; border-left: 5px solid {color}; background-color: #f0f2f6; margin-bottom: 15px; border-radius: 4px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="color:{color}; font-weight:bold; font-size: 1.0em;">
+                Sentiment: {label_text} <span style="color: #555; font-weight: normal;">(with {score:.0%} confidence)</span>
+            </span>
+            <span style="color: #888; font-size: 0.8em;">{date_str}</span>
         </div>
-        <div style="margin-top: 5px;">
-            <a href="{link}" target="_blank" style="color: #1f1f1f; text-decoration: none; font-weight: 600; font-size: 1.1em;">{title}</a>
+        <div style="margin-top: 8px;">
+            <a href="{link}" target="_blank" style="color: #1f1f1f; text-decoration: none; font-weight: 600; font-size: 1.1em; line-height: 1.4;">{title}</a>
         </div>
-        <div style="margin-top: 5px; font-size: 0.8em; color: #666;">
+        <div style="margin-top: 8px; font-size: 0.85em; color: #666;">
             Source: {publisher}
         </div>
     </div>
@@ -109,7 +115,7 @@ tab1, tab2 = st.tabs(["📈 Stock Dashboard", "🧪 Custom Analysis"])
 
 # --- TAB 1: DASHBOARD ---
 with tab1:
-    query = st.text_input("Enter Company Name & Hit Enter (e.g., Apple, Samsung, Genpact, etc.):")
+    query = st.text_input("Enter Company Name (e.g., Apple, Samsung, Genpact, etc.):")
 
     if query:
         with st.spinner(f"🔍 Searching for '{query}'..."):
@@ -117,7 +123,7 @@ with tab1:
 
         if search_results:
             options = {f"{r['name']} ({r['symbol']}) - {r['exchange']}": r['symbol'] for r in search_results}
-            selected_label = st.selectbox("Select the Correct Company:", list(options.keys()))
+            selected_label = st.selectbox("Select the correct company:", list(options.keys()))
             
             if selected_label:
                 ticker = options[selected_label]
@@ -210,13 +216,18 @@ with tab2:
         if user_text:
             with st.spinner("AI is thinking..."):
                 label, score = get_sentiment(user_text)
-                color = "gray"
-                if label == "positive": color = "green"
-                elif label == "negative": color = "red"
+                
+                # UX Update for Custom Tab
+                color = "#777"
+                if label == "positive": color = "#28a745"
+                elif label == "negative": color = "#dc3545"
+                
+                label_text = label.title()
+                
                 st.markdown(f"""
-                <div style="text-align: center; padding: 20px; background-color: #f0f2f6; border-radius: 10px;">
-                    <h2 style="color: {color}; margin:0;">Sentiment: {label.title()}</h2>
-                    <p style="font-size: 1.2em; margin:0;">(with <strong.{score:.1%}</strong> confidence)</p>
+                <div style="text-align: center; padding: 20px; background-color: #f0f2f6; border-radius: 10px; border: 1px solid #ddd;">
+                    <h2 style="color: {color}; margin:0;">Sentiment: {label_text}</h2>
+                    <p style="font-size: 1.2em; margin:0; color: #555;">with <strong>{score:.1%}</strong> confidence</p>
                 </div>
                 """, unsafe_allow_html=True)
         else:
