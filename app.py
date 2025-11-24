@@ -157,8 +157,9 @@ with tab1:
                             for i, item in enumerate(news_list[:5]):
                                 progress_bar.progress((i + 1) * 20, text=f"Reading Headline {i+1}...")
                                 
-                                # Titanium Shield Logic
+                                # --- TITANIUM SHIELD LOGIC START ---
                                 try:
+                                    # 1. Normalize Payload (Handle nested content)
                                     if isinstance(item, dict) and 'content' in item and item['content']:
                                         payload = item['content']
                                     else:
@@ -166,8 +167,10 @@ with tab1:
                                     
                                     if not payload: continue
 
-                                    title = payload.get('title', 'No Title')
+                                    # 2. Safe Extraction
+                                    title = payload.get('title', 'No Title Available')
                                     
+                                    # Date Logic
                                     pub_time = payload.get('pubDate') or payload.get('providerPublishTime')
                                     date_str = "Recent"
                                     if pub_time:
@@ -181,22 +184,28 @@ with tab1:
                                             except:
                                                 pass
 
+                                    # Provider Logic
                                     provider = payload.get('provider', {})
                                     if isinstance(provider, dict):
                                         publisher = provider.get('displayName', 'Unknown')
                                     else:
                                         publisher = "Unknown"
                                         
+                                    # Link Logic
                                     click_url = payload.get('clickThroughUrl')
                                     if click_url and isinstance(click_url, dict):
                                         link = click_url.get('url', '#')
                                     else:
                                         link = payload.get('link', '#')
 
+                                    # 3. AI Call & Render
                                     label, score = get_sentiment(title)
                                     sentiment_card(title, link, publisher, date_str, label, score)
-                                except:
-                                    continue
+                                    
+                                except Exception as e:
+                                    # If ANYTHING breaks in this item, skip it silently and continue loop
+                                    continue 
+                                # --- TITANIUM SHIELD LOGIC END ---
                             
                             progress_bar.empty()
                         else:
