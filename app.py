@@ -90,7 +90,7 @@ def sentiment_card(title, link, publisher, date_str, label, score):
     st.markdown(f"""
     <div style="padding: 12px; border-left: 5px solid {color}; background-color: #f0f2f6; margin-bottom: 10px; border-radius: 4px;">
         <div style="display: flex; justify-content: space-between;">
-            <span style="color:{color}; font-weight:bold; font-size: 0.9em;">{label.upper()} ({score:.0%})</span>
+            <span style="color:{color}; font-weight:bold; font-size: 0.9em;">Sentiment: {label.title()} (with {score: .0%} confidence)</span>
             <span style="color: #666; font-size: 0.8em;">{date_str}</span>
         </div>
         <div style="margin-top: 5px;">
@@ -215,8 +215,8 @@ with tab2:
                 elif label == "negative": color = "red"
                 st.markdown(f"""
                 <div style="text-align: center; padding: 20px; background-color: #f0f2f6; border-radius: 10px;">
-                    <h2 style="color: {color}; margin:0;">{label.upper()}</h2>
-                    <p style="font-size: 1.5em; margin:0;">Confidence: <strong>{score:.1%}</strong></p>
+                    <h2 style="color: {color}; margin:0;">Sentiment: {label.title()}</h2>
+                    <p style="font-size: 1.2em; margin:0;">(with <strong.{score:.1%}</strong> confidence)</p>
                 </div>
                 """, unsafe_allow_html=True)
         else:
